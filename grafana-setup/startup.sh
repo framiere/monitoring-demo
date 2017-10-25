@@ -19,20 +19,6 @@ function waitForGrafana {
     done
 }
 
-
-function retryHttp {
-    method=$1
-    url=$2
-    content=$3
-    curlCommand="curl -X${method} ${url} -H 'Content-Type: application/json;charset=UTF-8' --write-out %{http_code} --output /dev/null -d @${content}"
-    status=$(curlCommand)
-    while  [ $status -ne 200 ] && [ $status -ne 409 ] ;
-    do
-        status=$(curlCommand)
-        sleep 1
-    done
-}
-
 waitForGrafana
 
 mkdir /grafana
