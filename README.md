@@ -710,6 +710,8 @@ For that we need to install a plugin, let's leverage the grafana `GF_INSTALL_PLU
 
 Run the demo `docker-compose -f docker-compose-step9.yml up`
 
-You can now create ![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
+You can now create live diagrams !
+
+![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
 
 
