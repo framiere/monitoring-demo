@@ -408,10 +408,12 @@ c167fc52cc33        bekt/logspout-logstash                                "/bin/
 9361851e9f49        ubuntu                                                "bash -c 'echo ${R..."   14 minutes ago      Up 1 second                                                          monitoringdemo_example_1
 b200f5f8e312        docker.elastic.co/elasticsearch/elasticsearch:5.6.0   "/bin/bash bin/es-..."   14 minutes ago      Up 26 seconds       0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp   monitoringdemo_elasticsearch_1
 ```
- 
-Open chronograf at http://localhost:8888 go into data explorer
 
-Or create specic query http://localhost:8888/sources/0/chronograf/data-explorer?query=SELECT%20mean%28%22io_service_bytes_recursive_sync%22%29%20AS%20%22mean_io_service_bytes_recursive_sync%22%20FROM%20%22telegraf%22.%22autogen%22.%22docker_container_blkio%22%20WHERE%20time%20%3E%20now%28%29%20-%201h%20GROUP%20BY%20time%2810s%29%20FILL%28null%29
+Please check the following links
+
+- [chronograf data explorer](http://localhost:8888/sources/0/chronograf/data-explorer)
+- [a query sample](http://localhost:8888/sources/0/chronograf/data-explorer?query=SELECT%20mean%28%22io_service_bytes_recursive_sync%22%29%20AS%20%22mean_io_service_bytes_recursive_sync%22%20FROM%20%22telegraf%22.%22autogen%22.%22docker_container_blkio%22%20WHERE%20time%20%3E%20now%28%29%20-%201h%20GROUP%20BY%20time%2810s%29%20FILL%28null%29)
+- [create an alert](http://localhost:8888/sources/0/alert-rules/new)
 
 You can play around with the alerting system etc.
 
@@ -457,9 +459,9 @@ Well there's a local build that does just that
       - grafana
 ```
 
-Use username `admin` password `admin`
+Enjoy your [docker metrics](http://localhost:3000/dashboard/db/docker?refresh=5s&orgId=1&from=now-5m&to=now) !
 
-Enjoy your docker metrics at http://localhost:3000/dashboard/db/docker?refresh=5s&orgId=1&from=now-5m&to=now
+__Note:__ Use username `admin` password `admin`
 
 Go at the bottom of the page ... here are the logs for the container you are looking at !
 
@@ -692,5 +694,22 @@ Well looks like we do !
 
 Let's rely on https://grafana.com/plugins/jdbranham-diagram-panel to show pretty diagram that will be live
 
-For that we need to install a plugin, let's make our own image that relies upon the grafana one and add the plugins of our choice
+For that we need to install a plugin, let's leverage the grafana `GF_INSTALL_PLUGINS` environment variable
+
+```yaml
+  grafana:
+    image: grafana/grafana:4.5.2
+    ports:
+      - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: jdbranham-diagram-panel
+    depends_on:
+      - influxdb
+      - elasticsearch
+```
+
+Run the demo `docker-compose -f docker-compose-step9.yml up`
+
+You can now create ![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
+
 
