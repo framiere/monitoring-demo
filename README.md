@@ -1,8 +1,10 @@
 # Monitoring demo
 
-## Step 1 - docker buses
+## Step 1 - container logging
 
 In `docker-compose -f docker-compose-step1.yml` we create a simple container that displays hello world
+
+The container definition is as follows
 
 ```yaml
   example:
@@ -11,7 +13,7 @@ In `docker-compose -f docker-compose-step1.yml` we create a simple container tha
 ``` 
 
 ```bash
-$ docker-compose up                                                  
+$ docker-compose -f docker-compose-step1.yml up                                                 
 Creating network "monitoringdemo_default" with the default driver
 Creating monitoringdemo_example_1 ...
 Creating monitoringdemo_example_1 ... done
@@ -31,10 +33,9 @@ $ docker logs monitoringdemo_example_1
 hello world
 ``` 
 
-When outputing to `stdout` and `stderr` docker captures these logs and send to the log bus. A listener listens to logs and store container logs into their own log file.
+When outputing to `stdout` and `stderr` docker captures these logs and send them to the log bus. A listener listens to logs and store container logs into their own log file.
 
 In order to know where it's stored just inspect the container with `docker inspect monitoringdemo_example_1` you should see
-
  
 ```bash
 $ docker inspect monitoringdemo_example_1
@@ -53,12 +54,8 @@ $ docker inspect monitoringdemo_example_1
             "Paused": false,
             "Restarting": false,
 ...
-                    "IPv6Gateway": "",
-                    "GlobalIPv6Address": "",
-                    "GlobalIPv6PrefixLen": 0,
-                    "MacAddress": "",
-                    "DriverOpts": null
-                }
+... snip snip ...
+...
             }
         }
     }
@@ -134,7 +131,7 @@ example_1   | 11597
 example_1   | 9666
 example_1   | 3226
 ...
-...
+... snip snip ...
 ...
 example_1   | 10854
 logstash_1  | {
@@ -231,7 +228,7 @@ Recreating monitoringdemo_logspout_1 ...
 Recreating monitoringdemo_logspout_1 ... done
 Attaching to monitoringdemo_example_1, monitoringdemo_elasticsearch_1, monitoringdemo_logstash_1, monitoringdemo_kibana_1, monitoringdemo_logspout_1
 ...
-...
+... snip snip ...
 ...
 ```
 
@@ -350,37 +347,26 @@ I remove many default values, if you want to see them fully go to https://github
 [agent]
 interval = "10s"
 
+## Outputs
 [[outputs.influxdb]]
 urls = ["http://influxdb:8086"]
 database = "telegraf"
 
+## Inputs
 [[inputs.cpu]]
-
 [[inputs.disk]]
-
 [[inputs.diskio]]
-
 [[inputs.kernel]]
-
 [[inputs.mem]]
-
 [[inputs.processes]]
-
 [[inputs.swap]]
-
 [[inputs.system]]
-
 [[inputs.net]]
-
 [[inputs.netstat]]
-
 [[inputs.interrupts]]
-
 [[inputs.linux_sysctl_fs]]
-
 [[inputs.docker]]
 endpoint = "unix:///tmp/docker.sock"
-
 [[inputs.elasticsearch]]
 servers = ["http://elasticsearch:9200"]
 ```
@@ -569,6 +555,7 @@ Yes it looks like it !
 We are in a pretty good shape right ?
 
 Well, no. We have many jvm based components such as kafka, and we know its monitoring is based on the JMX standard.
+
 
 # Step 8 - Enter JMX !
 
