@@ -715,3 +715,15 @@ You can now create live diagrams !
 ![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
 
 
+# Step 10 : Going even further with KSQL
+
+Now you have kafka, you can leverage [ksql](https://github.com/confluentinc/ksql) declarative power such as  
+
+```sql
+CREATE TABLE possible_fraud AS
+  SELECT card_number, count(*)
+  FROM authorization_attempts
+  WINDOW TUMBLING (SIZE 5 SECONDS)
+  GROUP BY card_number
+  HAVING count(*) > 3;
+```
