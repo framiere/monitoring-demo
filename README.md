@@ -727,3 +727,5 @@ CREATE TABLE possible_fraud AS
   GROUP BY card_number
   HAVING count(*) > 3;
 ```
+
+Have fun !
