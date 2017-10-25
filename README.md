@@ -385,7 +385,9 @@ endpoint = "unix:///tmp/docker.sock"
 servers = ["http://elasticsearch:9200"]
 ```
 
-This configuration should be self-explanatory right ?
+This configuration should be self-explanatory right ? 
+
+__Note:__ The telegraf plugin ecosystem is huge, see the full list here : https://github.com/influxdata/telegraf#input-plugins
 
 Now run the demo `docker-compose -f docker-compose-step5.yml up`
 
