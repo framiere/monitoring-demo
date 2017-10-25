@@ -218,7 +218,7 @@ So let's create the defaut kibana index pattern.
 Run the demo
 
 ```bash
-docker-compose -f docker-compose-step3.yml up   
+$ docker-compose -f docker-compose-step3.yml up   
 Starting monitoringdemo_example_1 ...
 Starting monitoringdemo_example_1
 Creating monitoringdemo_elasticsearch_1 ...
