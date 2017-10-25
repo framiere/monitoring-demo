@@ -21,6 +21,12 @@ services:
       xpack.security.enabled: "false"
     depends_on:
       - elasticsearch
+  kibana_index_pattern:
+    image: tutum/curl
+    command: |
+      bash -c "sleep 30 ; curl 'http://kibana:5601/es_admin/.kibana/index-pattern/logstash-*/_create' -H 'kbn-version: 5.5.2' -H 'content-type: application/json' --data-binary '{\"title\":\"logstash-*\",\"timeFieldName\":\"@timestamp\",\"notExpandable\":true}'"
+    depends_on:
+      - kibana
   logstash:
     image: logstash
     restart: on-failure

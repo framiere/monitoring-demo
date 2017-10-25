@@ -2,7 +2,13 @@
 
 ## Step 1 - docker buses
 
-In `docker-compose -f docker-compose-step1.yml` create a simple container that displays hello world 
+In `docker-compose -f docker-compose-step1.yml` we create a simple container that displays hello world
+
+```yaml
+  example:
+    image: ubuntu
+    command: echo hello world
+``` 
 
 ```bash
 $ docker-compose up                                                  
@@ -10,11 +16,11 @@ Creating network "monitoringdemo_default" with the default driver
 Creating monitoringdemo_example_1 ...
 Creating monitoringdemo_example_1 ... done
 Attaching to monitoringdemo_example_1
-example_1  | hello
+example_1  | hello world
 monitoringdemo_example_1 exited with code 0
 ```
 
-Hello has been writen on `stdout`. How fancy ! 
+`Hello world` has been writen on `stdout`. How fancy ! 
 
 The output of the container has also been captured by docker.
 
@@ -66,25 +72,21 @@ $ docker inspect monitoringdemo_example_1 | grep log
         "LogPath": "/var/lib/docker/containers/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a-json.log",
 ```
 
-Perfect, let's extract that field now with `jq`
+Perfect, let's extract that field now with [jq](https://stedolan.github.io/jq/)
 
 ```bash
 $ docker inspect monitoringdemo_example_1 | jq -r '.[].LogPath'
 /var/lib/docker/containers/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a-json.log
 ```
+`Note`: this cannot work with docker for mac as-is.
 
 More about logs : https://docs.docker.com/engine/admin/logging/overview/#use-environment-variables-or-labels-with-logging-drivers
-
-
-Now you can look into it.
-
-`Note`: this cannot work with docker for mac as-is.
 
 # Step 2 - Listening for events and logs using a container
 
 Here is objective is to leverage the docker event bus, listen to it and output it on the console.
 
-The docker logs listener is `logspout`
+We will use [logspout](https://github.com/gliderlabs/logspout) to listen for all the docker logs.
 
 ```yaml
   logspout:
@@ -98,9 +100,9 @@ The docker logs listener is `logspout`
       - logstash
 ```
 
-_Note_: In order to read from the log bus, we need to access the docker socket.
+_Note_: In order to read from the log bus, we need to access the docker socket. This the volume mapping configuration.
 
-Once [logspout](https://github.com/gliderlabs/logspout) got a log, it sends it a `logstash`.
+Once `logspout` gets a log, it sends it `logstash`.
 
 
 [logstash](https://www.elastic.co/guide/en/logstash/current/index.html)`Logstash` is defined as follows
@@ -112,9 +114,9 @@ Once [logspout](https://github.com/gliderlabs/logspout) got a log, it sends it a
     command: -e "input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { stdout { codec => rubydebug } }"
 ``` 
 
-Here I define a complete logstash configuration on the command line.
+Here I define a complete `logstash` configuration on the command line.
 
-_Note_: logspout will send all logs event from logstash, filter the logstash one to prevent infinite printing :)
+_Note_: `logspout` will send all logs event from `logstash`, filter the `logstash` one to prevent infinite printing.
 
 
 Run the demo with `docker-compose -f docker-compose-step2.yml up`, you should see
@@ -152,9 +154,7 @@ logstash_1  |           "tags" => []
 logstash_1  | }
 ```
 
-Please note that along the message is the metadata of the container !
-
-This will be of *tremendous* help while debugging your clustr !
+__Note:__: Along the message is container metadata! This will be of **tremendous** help while debugging your clustr !
 
 # Step 3 - Elasticsearch
 
@@ -200,6 +200,20 @@ becomes
 ```bash 
 -e "input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { elasticsearch { hosts => "elasticsearch" } }"
 ```
+By default the logs will be sent to the `logstash-*` index.
+
+So let's create the defaut kibana index pattern.
+
+```yaml
+  kibana_index_pattern:
+    image: ubuntu
+    command: |
+      bash -c "sleep 30 ; curl 'http://kibana:5601/es_admin/.kibana/index-pattern/logstash-*/_create' -H 'kbn-version: 5.5.2' -H 'content-type: application/json' --data-binary '{\"title\":\"logstash-*\",\"timeFieldName\":\"@timestamp\",\"notExpandable\":true}'"
+    depends_on:
+      - kibana
+```
+
+
 
 Run the demo
 
@@ -224,7 +238,6 @@ Attaching to monitoringdemo_example_1, monitoringdemo_elasticsearch_1, monitorin
 Now look at the logs in kibana
 
 - open http://localhost:5601/
-- click create for `logstash-*` index pattern
 - click discover 
 - win !
 
@@ -448,7 +461,7 @@ Enjoy your docker metrics at http://localhost:3000/dashboard/db/docker?refresh=5
 
 Go at the bottom of the page ... here are the logs for the container you are looking at !
 
-_Note_ : do not hesitate to rely on dashboards from the community at https://grafana.com/dashboards
+__Note:__ do not hesitate to rely on dashboards from the community at https://grafana.com/dashboards
 
 As a side note here are the running containers
 
