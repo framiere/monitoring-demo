@@ -27,7 +27,7 @@ The output of the container has also been captured by docker.
 Run `docker logs monitoringdemo_example_1` you should see
 
 ```bash
-docker logs monitoringdemo_example_1                                
+$ docker logs monitoringdemo_example_1                                
 hello world
 ``` 
 
