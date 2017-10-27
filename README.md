@@ -97,7 +97,7 @@ We will use [logspout](https://github.com/gliderlabs/logspout) to listen for all
       - logstash
 ```
 
-_Note_: In order to read from the log bus, we need to access the docker socket. This the volume mapping configuration.
+_Note:_ In order to read from the log bus, we need to access the docker socket. This the volume mapping configuration.
 
 Once `logspout` gets a log, it sends it `logstash`.
 
@@ -113,7 +113,7 @@ Once `logspout` gets a log, it sends it `logstash`.
 
 Here I define a complete `logstash` configuration on the command line.
 
-_Note_: `logspout` will send all logs event from `logstash`, filter the `logstash` one to prevent infinite printing.
+_Note:_ `logspout` will send all logs event from `logstash`, filter the `logstash` one to prevent infinite printing.
 
 
 Run the demo with `docker-compose -f docker-compose-step2.yml up`, you should see
@@ -151,7 +151,7 @@ logstash_1  |           "tags" => []
 logstash_1  | }
 ```
 
-__Note:__: Along the message is container metadata! This will be of **tremendous** help while debugging your clustr !
+__Note:__ Along the message is container metadata! This will be of **tremendous** help while debugging your clustr !
 
 # Step 3 - Elasticsearch
 
@@ -253,7 +253,7 @@ Let's use [metricbeat](https://www.elastic.co/guide/en/beats/metricbeat/current/
       - elasticsearch
 ```
 
-_Note_: like for logspout we need to ask container question to docker via its socket.
+_Note:_ like for logspout we need to ask container question to docker via its socket.
 
 The nice thing about metric beat is that it comes with ready made dashboards, let's leverage that too.
 
