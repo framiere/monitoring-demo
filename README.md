@@ -743,13 +743,19 @@ __Note:__  Todo
 
 https://prometheus.io/
 
-# Step 14 : Monitoring Federation 
+# Step 15 : Going distributed open tracing
+
+__Note:__  Todo
+
+http://opentracing.io/
+
+# Step 16 : Monitoring Federation 
 
 __Note:__  Todo
 
 Have a global overview of many clusters.
 
-# Step 15 : Security
+# Step 17 : Security
 
 __Note:__  Todo
 
