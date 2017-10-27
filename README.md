@@ -380,7 +380,7 @@ Now run the demo `docker-compose -f docker-compose-step5.yml up`
 You are starting to have many containers
 
 ```bash 
-$ docker ps                                                                                                                                                                 ✓  3225  00:40:33
+$ docker ps                                                                                                                                                                
 CONTAINER ID        IMAGE                                                 COMMAND                  CREATED             STATUS              PORTS                                            NAMES
 97f96024b3c1        chronograf:1.3.9                                      "/entrypoint.sh ch..."   24 seconds ago      Up 23 seconds       0.0.0.0:8888->8888/tcp                           monitoringdemo_chronograf_1
 9f5ff8e9cb9d        telegraf:1.4.0                                        "/entrypoint.sh te..."   26 seconds ago      Up 24 seconds       8092/udp, 8125/udp, 8094/tcp                     monitoringdemo_telegraf_1
@@ -456,7 +456,7 @@ __Note:__ do not hesitate to rely on dashboards from the community at https://gr
 As a side note here are the running containers
 
 ```bash
-$ docker ps                                                                                                                                                                 ✓  3225  00:40:33
+$ docker ps
 CONTAINER ID        IMAGE                                                 COMMAND                  CREATED             STATUS                  PORTS                                            NAMES
 3170c4765e09        chronograf:1.3.9                                      "/entrypoint.sh ch..."   42 seconds ago      Up 38 seconds           0.0.0.0:8888->8888/tcp                           monitoringdemo_chronograf_1
 929b246daf10        bekt/logspout-logstash                                "/bin/logspout"          46 seconds ago      Up 17 seconds           80/tcp                                           monitoringdemo_logspout_1
@@ -642,7 +642,7 @@ Run the demo `docker-compose -f docker-compose-step8.yml up`
 You'll see the new kafka image created
 
 ```bash
-$ docker images |  grep demo                                                                                                                                            ✓  3261  01:34:42
+$ docker images |  grep demo                                                                                     
 monitoringdemo_kafka                            latest              5a746c9ff5ea        2 minutes ago       270MB
 ```
 
@@ -670,7 +670,7 @@ e46179d32253        ubuntu                                                "bash 
 Do we have jolokia metrics ? 
 
 ```bash
-$ docker exec -ti monitoringdemo_kafka_1 kafka-console-consumer.sh  --zookeeper zookeeper --topic telegraf | grep jolokia                                             1 ↵  3291  01:54:37
+$ docker exec -ti monitoringdemo_kafka_1 kafka-console-consumer.sh  --zookeeper zookeeper --topic telegraf | grep jolokia 
 jolokia,host=cde5575b52a5,jolokia_name=kafka,jolokia_port=8778,jolokia_host=kafka heap_memory_usage_used=188793344,messages_in_MeanRate=12.98473084303969,bytes_out_FiveMinuteRate=1196.4939381458667,bytes_out_RateUnit="SECONDS",active_controller_Value=1,heap_memory_usage_init=1073741824,heap_memory_usage_committed=1073741824,messages_in_FiveMinuteRate=4.794914163942757,messages_in_EventType="messages",isr_expands_Count=0,isr_expands_FiveMinuteRate=0,isr_expands_OneMinuteRate=0,messages_in_RateUnit="SECONDS",bytes_in_FifteenMinuteRate=995.4606306690374,bytes_out_OneMinuteRate=3453.5697437249646,bytes_out_Count=413240,offline_partitions_Value=0,isr_shrinks_OneMinuteRate=0,messages_in_FifteenMinuteRate=1.8164700620801133,messages_in_OneMinuteRate=11.923477587504813,bytes_in_Count=955598,bytes_in_MeanRate=7110.765507856953,isr_shrinks_Count=0,isr_expands_RateUnit="SECONDS",isr_shrinks_EventType="shrinks",isr_expands_MeanRate=0,bytes_in_RateUnit="SECONDS",bytes_in_OneMinuteRate=6587.34465794122,bytes_in_FiveMinuteRate=2631.3776025779002,bytes_out_EventType="bytes",isr_shrinks_FiveMinuteRate=0,isr_expands_EventType="expands",messages_in_Count=1745,bytes_out_MeanRate=3074.982298604404,isr_expands_FifteenMinuteRate=0,heap_memory_usage_max=1073741824,bytes_in_EventType="bytes",bytes_out_FifteenMinuteRate=438.0280170256858,isr_shrinks_MeanRate=0,isr_shrinks_RateUnit="SECONDS",isr_shrinks_FifteenMinuteRate=0 1508889300000000000
 jolokia,jolokia_name=kafka,jolokia_port=8778,jolokia_host=kafka,host=cde5575b52a5 bytes_in_MeanRate=6630.745414108696,isr_shrinks_RateUnit="SECONDS",isr_expands_EventType="expands",isr_expands_FiveMinuteRate=0,isr_expands_RateUnit="SECONDS",heap_memory_usage_max=1073741824,messages_in_Count=1745,isr_expands_FifteenMinuteRate=0,bytes_out_RateUnit="SECONDS",isr_shrinks_OneMinuteRate=0,isr_shrinks_FifteenMinuteRate=0,isr_shrinks_MeanRate=0,messages_in_RateUnit="SECONDS",bytes_in_OneMinuteRate=5576.066868503058,messages_in_FifteenMinuteRate=1.796398775034883,bytes_in_FiveMinuteRate=2545.1107836610863,bytes_out_Count=413240,active_controller_Value=1,isr_expands_Count=0,heap_memory_usage_committed=1073741824,messages_in_EventType="messages",bytes_in_Count=955598,isr_expands_OneMinuteRate=0,messages_in_FiveMinuteRate=4.637718179794651,messages_in_MeanRate=12.107909165680097,isr_shrinks_Count=0,isr_shrinks_EventType="shrinks",bytes_in_FifteenMinuteRate=984.461178226918,offline_partitions_Value=0,bytes_out_OneMinuteRate=2923.3836736983444,bytes_out_EventType="bytes",isr_shrinks_FiveMinuteRate=0,isr_expands_MeanRate=0,bytes_in_EventType="bytes",bytes_out_MeanRate=2867.3907911149618,messages_in_OneMinuteRate=10.093005874965653,bytes_in_RateUnit="SECONDS",bytes_out_FifteenMinuteRate=433.18797795919676,bytes_out_FiveMinuteRate=1157.2682011038034,heap_memory_usage_init=1073741824,heap_memory_usage_used=189841920 1508889310000000000
 ```
@@ -702,9 +702,24 @@ You can now create live diagrams !
 ![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
 
 
-# Step 10 : Going even further with KSQL
+# Step 10 : Your sql databases are back
 
-Now you have kafka, you can leverage [ksql](https://github.com/confluentinc/ksql) declarative power such as  
+__Note:__  Todo
+
+Leverage your sql databases in your grafana dashboards with http://docs.grafana.org/features/datasources/mysql/
+- you can consume your database changes and push them to kafka https://www.confluent.io/product/connectors/
+
+# Step 11 : Share your database tables as kafka table
+
+*C*hange *D*ata *C*apture and [Kafka connect](https://kafka.apache.org/documentation/#connect) 
+Look at the ecosystem : https://www.confluent.io/product/connectors/
+
+
+# Step 12 : Going even further with Kafka using KSQL
+
+__Note:__  Todo
+
+Now that Kafka is the real bus of your architecture, you can leverage [ksql](https://github.com/confluentinc/ksql) declarative power such as  
 
 ```sql
 CREATE TABLE possible_fraud AS
@@ -715,4 +730,27 @@ CREATE TABLE possible_fraud AS
   HAVING count(*) > 3;
 ```
 
-Have fun !
+# Step 13 : Going C3
+
+__Note:__  Todo
+
+Now that kafka, ksql, connect is driving many parts of your monitoring, you want to have a dedicated tool that will enrich your existing metrics/visualizations : https://www.confluent.io/product/control-center/
+
+
+# Step 14 : Going prometheus
+
+__Note:__  Todo
+
+https://prometheus.io/
+
+# Step 14 : Monitoring Federation 
+
+__Note:__  Todo
+
+Have a global overview of many clusters.
+
+# Step 15 : Security
+
+__Note:__  Todo
+
+Always a bit of a pain.
