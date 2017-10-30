@@ -840,3 +840,5 @@ Have a global overview of many clusters.
 __Note:__  Todo
 
 Always a bit of a pain.
+
+<script type="text/javascript" src="https://mermaidjs.github.io/scripts/mermaid.min.js"></script>
