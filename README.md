@@ -841,4 +841,4 @@ __Note:__  Todo
 
 Always a bit of a pain.
 
-<script type="text/javascript" src="https://mermaidjs.github.io/scripts/mermaid.min.js"></script>
+<script type="text/javascript" src="https://raw.githubusercontent.com/wiki/framiere/monitoring-demo/mermaid.min.js"></script>
