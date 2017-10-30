@@ -1,8 +1,35 @@
-# Monitoring demo
+Hello, this project is about giving you a step by step introduction on how to leverage docker and the open-source ecosystem to do metrics/logs/alerting.
+
+This is of course an exercice to put ideas out there. 
+
+__Note:__ This is not to be used as-is on production.
+
+<!-- TOC -->
+
+- [Step 1 - container logging](#step-1---container-logging)
+- [Step 2 - Listening for logs using a container](#step-2---listening-for-logs-using-a-container)
+- [Step 3 - Elasticsearch](#step-3---elasticsearch)
+- [Step 4 - Elasticsearch Metrics !](#step-4---elasticsearch-metrics-)
+- [Step 5 - Better metrics: the TICK stack](#step-5---better-metrics-the-tick-stack)
+- [Step 6 - Getting the best of the ecosystem](#step-6---getting-the-best-of-the-ecosystem)
+- [Step 7 - Kafka the data hub](#step-7---kafka-the-data-hub)
+- [Step 8 - Enter JMX !](#step-8---enter-jmx-)
+- [Step 9 - Self descriptive visualizations](#step-9---self-descriptive-visualizations)
+- [Step 10 - Your sql databases are back](#step-10---your-sql-databases-are-back)
+- [Step 11 - Share your database tables as kafka table](#step-11---share-your-database-tables-as-kafka-table)
+- [Step 12 - Going even further with Kafka using KSQL](#step-12---going-even-further-with-kafka-using-ksql)
+- [Step 13 - Going C3](#step-13---going-c3)
+- [Step 14 - Going Prometheus](#step-14---going-prometheus)
+- [Step 15 - Going distributed open tracing](#step-15---going-distributed-open-tracing)
+- [Step 16 - Monitoring Federation](#step-16---monitoring-federation)
+- [Step 17 - Security](#step-17---security)
+
+<!-- /TOC -->
+
 
 ## Step 1 - container logging
 
-In `docker-compose -f docker-compose-step1.yml` we create a simple container that displays hello world
+In `docker-compose-step1.yml` we create a simple container that displays hello world
 
 The container definition is as follows
 
@@ -11,6 +38,9 @@ The container definition is as follows
     image: ubuntu
     command: echo hello world
 ``` 
+
+Run it with `docker-compose -f docker-compose-step1.yml` 
+
 
 ```bash
 $ docker-compose -f docker-compose-step1.yml up                                                 
@@ -33,7 +63,7 @@ $ docker logs monitoringdemo_example_1
 hello world
 ``` 
 
-When outputing to `stdout` and `stderr` docker captures these logs and send them to the log bus. A listener listens to logs and store container logs into their own log file.
+When outputing to `stdout` and `stderr` docker captures these logs and send them to the log bus. A listener listen to logs and store container logs into their own log file.
 
 In order to know where it's stored just inspect the container with `docker inspect monitoringdemo_example_1` you should see
  
@@ -79,9 +109,29 @@ $ docker inspect monitoringdemo_example_1 | jq -r '.[].LogPath'
 
 More about logs : https://docs.docker.com/engine/admin/logging/overview/#use-environment-variables-or-labels-with-logging-drivers
 
-# Step 2 - Listening for events and logs using a container
 
-Here is objective is to leverage the docker event bus, listen to it and output it on the console.
+```mermaid
+graph LR;
+    Container-->Docker;
+    Docker-- write to -->File;
+    Docker-- write to -->stdout;
+```
+
+## Step 2 - Listening for logs using a container
+
+The objective now is to leverage the docker event bus, listen to it and output it on the console.
+
+```mermaid
+graph LR;
+    Container-->Docker((Docker));
+    Docker-- write to -->File;
+    Docker-- write to -->stdout;
+    Listener-- listen to -->Docker;
+    Listener-- write to -->stdout;
+```
+
+We should see twice anything that is outputed on `stdout`.
+
 
 We will use [logspout](https://github.com/gliderlabs/logspout) to listen for all the docker logs.
 
@@ -114,6 +164,18 @@ Once `logspout` gets a log, it sends it `logstash`.
 Here I define a complete `logstash` configuration on the command line.
 
 _Note:_ `logspout` will send all logs event from `logstash`, filter the `logstash` one to prevent infinite printing.
+
+So here is are the containers at play:
+
+```mermaid
+graph LR;
+    Container-->Docker((Docker));
+    Docker-- write to -->File;
+    Docker-- write to -->stdout;
+    Logspout-- listen to -->Docker;
+    Logspout-- write to -->Logstash;
+    Logstash-- write to -->stdout;
+```
 
 
 Run the demo with `docker-compose -f docker-compose-step2.yml up`, you should see
@@ -151,11 +213,11 @@ logstash_1  |           "tags" => []
 logstash_1  | }
 ```
 
-__Note:__ Along the message is container metadata! This will be of **tremendous** help while debugging your clustr !
+__Note:__ Along the message is container metadata! This will be of **tremendous** help while debugging your cluster !
 
-# Step 3 - Elasticsearch
+## Step 3 - Elasticsearch
 
-It's kind of silly to grab stdout in such a convoluted way to export it to bash to stdout.
+It's kind of silly to grab stdout in such a convoluted way to export it back to `stdout`.
  
 Let's make something useful such as sending all the logs to [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html).
 
@@ -210,9 +272,17 @@ So let's create the defaut kibana index pattern.
       - kibana
 ```
 
+Here are the containers involved:
 
+```mermaid
+graph LR;
+    Logspout--listen to-->Docker((Docker));
+    Logspout-- write to -->Logstash;
+    Logstash-- write to -->Elasticsearch;
+    Kibana-- reads -->Elasticsearch;
+```
 
-Run the demo
+Run the demo with `docker-compose -f docker-compose-step3.yml up`
 
 ```bash
 $ docker-compose -f docker-compose-step3.yml up   
@@ -238,7 +308,7 @@ Now look at the logs in kibana
 - click discover 
 - win !
 
-# Step 4 - Metrics !
+## Step 4 - Elasticsearch Metrics !
 
 Docker has metrics about the state of each container, but also what is does consume, let's leverage that !
 
@@ -265,13 +335,23 @@ The nice thing about metric beat is that it comes with ready made dashboards, le
       - elasticsearch
 ```
 
-Look at the 
+Here are the containers at play :
+
+```mermaid
+graph LR;
+    MetricBeat-- listen to -->Docker((Docker));
+    MetricBeat-- write to -->Elasticsearch;
+    MetricBeat-- setup dashboards -->Kibana;
+    Kibana-- reads from -->Elasticsearch;
+```
+
+Run the demo with `docker-compose -f docker-compose-step4.yml up` then look at the 
 
 - [raw metrics](http://localhost:5601/app/kibana#/discover?_g=()&_a=(columns:!(_source),index:'metricbeat-*',interval:auto,query:(match_all:()),sort:!('@timestamp',desc)))
 - [dashboards list](http://localhost:5601/app/kibana#/dashboards?_g=()) 
 - [system dashboard](http://localhost:5601/app/kibana#/dashboard/Metricbeat-filesystem?_g=()&_a=(description:'',filters:!(),options:(darkTheme:!f),panels:!((col:1,id:System-Navigation,panelIndex:1,row:1,size_x:2,size_y:4,type:visualization),(col:1,id:Top-hosts-by-disk-size,panelIndex:5,row:10,size_x:12,size_y:4,type:visualization),(col:4,id:Disk-space-overview,panelIndex:6,row:1,size_x:9,size_y:4,type:visualization),(col:1,id:Free-disk-space-over-days,panelIndex:7,row:5,size_x:6,size_y:5,type:visualization),(col:7,id:Total-files-over-days,panelIndex:8,row:5,size_x:6,size_y:5,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),timeRestore:!f,title:Metricbeat-filesystem,uiState:(P-5:(vis:(params:(sort:(columnIndex:!n,direction:!n))))),viewMode:view))
 
-# Step 5 - Better metrics, enter the TICK stack
+## Step 5 - Better metrics: the TICK stack
 
 The [TICK](https://www.influxdata.com/time-series-platform/) stack is comprised of
 
@@ -377,25 +457,34 @@ __Note:__ The telegraf plugin ecosystem is huge, see the full list here : https:
 
 Now run the demo `docker-compose -f docker-compose-step5.yml up`
 
-You are starting to have many containers
+You are starting to have many containers:
 
-```bash 
-$ docker ps                                                                                                                                                                
-CONTAINER ID        IMAGE                                                 COMMAND                  CREATED             STATUS              PORTS                                            NAMES
-97f96024b3c1        chronograf:1.3.9                                      "/entrypoint.sh ch..."   24 seconds ago      Up 23 seconds       0.0.0.0:8888->8888/tcp                           monitoringdemo_chronograf_1
-9f5ff8e9cb9d        telegraf:1.4.0                                        "/entrypoint.sh te..."   26 seconds ago      Up 24 seconds       8092/udp, 8125/udp, 8094/tcp                     monitoringdemo_telegraf_1
-79e770d720b0        kapacitor:1.3.3                                       "/entrypoint.sh ka..."   26 seconds ago      Up 24 seconds       9092/tcp                                         monitoringdemo_kapacitor_1
-db4e187054ac        influxdb:1.3.6                                        "/entrypoint.sh in..."   27 seconds ago      Up 26 seconds       0.0.0.0:8086->8086/tcp                           monitoringdemo_influxdb_1
-c167fc52cc33        bekt/logspout-logstash                                "/bin/logspout"          14 minutes ago      Up 6 seconds        80/tcp                                           monitoringdemo_logspout_1
-5fb25486f768        logstash                                              "/docker-entrypoin..."   14 minutes ago      Up 25 seconds                                                        monitoringdemo_logstash_1
-436d63c70979        docker.elastic.co/beats/metricbeat:5.6.3              "bash -c 'sleep 30..."   14 minutes ago      Up 25 seconds                                                        monitoringdemo_metricbeat-dashboard-setup_1
-9296c34415f6        docker.elastic.co/beats/metricbeat:5.6.3              "metricbeat -e"          14 minutes ago      Up 25 seconds                                                        monitoringdemo_metricbeat_1
-60c4f9ef8396        docker.elastic.co/kibana/kibana:5.5.2                 "/bin/sh -c /usr/l..."   14 minutes ago      Up 25 seconds       0.0.0.0:5601->5601/tcp                           monitoringdemo_kibana_1
-9361851e9f49        ubuntu                                                "bash -c 'echo ${R..."   14 minutes ago      Up 1 second                                                          monitoringdemo_example_1
-b200f5f8e312        docker.elastic.co/elasticsearch/elasticsearch:5.6.0   "/bin/bash bin/es-..."   14 minutes ago      Up 26 seconds       0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp   monitoringdemo_elasticsearch_1
+The ELK story:
+
+```mermaid
+graph LR;
+    Logspout-- listen to -->Docker((Docker));
+    Logspout-- write to -->Logstash;
+    Logstash-- write to -->Elasticsearch;
+    Kibana-- reads from -->Elasticsearch;
+    MetricBeat-- listen to -->Docker;
+    MetricBeat-- write to -->Elasticsearch;
+    MetricBeat-- one time dashboards setup -->Kibana;
 ```
 
-Please check the following links
+And the TICK story:
+
+```mermaid
+graph LR;
+    Telegraf-- listen to -->Docker((Docker));
+    Telegraf-- write to -->Influxdb;
+    Chronograf-- reads from -->Influxdb;
+    Kapacitor-- listen to -->Influxdb;
+    Chronograf-- setup rules -->Kapacitor;
+    Kapacitor-- notifies -->Notification;
+```
+
+Run the demo with `docker-compose -f docker-compose-step5.yml up` then look at the following links
 
 - [chronograf data explorer](http://localhost:8888/sources/0/chronograf/data-explorer)
 - [a query sample](http://localhost:8888/sources/0/chronograf/data-explorer?query=SELECT%20mean%28%22io_service_bytes_recursive_sync%22%29%20AS%20%22mean_io_service_bytes_recursive_sync%22%20FROM%20%22telegraf%22.%22autogen%22.%22docker_container_blkio%22%20WHERE%20time%20%3E%20now%28%29%20-%201h%20GROUP%20BY%20time%2810s%29%20FILL%28null%29)
@@ -403,7 +492,7 @@ Please check the following links
 
 You can play around with the alerting system etc.
 
-# Step 6 - Getting the best of the ecosystem
+## Step 6 - Getting the best of the ecosystem
 
 Are are now in a pretty good shape
 
@@ -445,7 +534,15 @@ Well there's a local build that does just that
       - grafana
 ```
 
-Enjoy your [docker metrics](http://localhost:3000/dashboard/db/docker?refresh=5s&orgId=1&from=now-5m&to=now) !
+```mermaid
+graph LR;
+    Grafana-- reads from -->Influxdb
+    Grafana-- reads from -->Elasticsearch
+    Grafana-- write to -->AlertChannels
+    GrafanaSetup-- one time setup -->Grafana
+```
+
+Run the demo with `docker-compose -f docker-compose-step6.yml up` then enjoy your [docker metrics](http://localhost:3000/dashboard/db/docker?refresh=5s&orgId=1&from=now-5m&to=now) in grafan!
 
 __Note:__ Use username `admin` password `admin`
 
@@ -453,27 +550,10 @@ Go at the bottom of the page ... here are the logs for the container you are loo
 
 __Note:__ do not hesitate to rely on dashboards from the community at https://grafana.com/dashboards
 
-As a side note here are the running containers
-
-```bash
-$ docker ps
-CONTAINER ID        IMAGE                                                 COMMAND                  CREATED             STATUS                  PORTS                                            NAMES
-3170c4765e09        chronograf:1.3.9                                      "/entrypoint.sh ch..."   42 seconds ago      Up 38 seconds           0.0.0.0:8888->8888/tcp                           monitoringdemo_chronograf_1
-929b246daf10        bekt/logspout-logstash                                "/bin/logspout"          46 seconds ago      Up 17 seconds           80/tcp                                           monitoringdemo_logspout_1
-48ab3e3f3dba        telegraf:1.4.0                                        "/entrypoint.sh te..."   47 seconds ago      Up 41 seconds           8092/udp, 8125/udp, 8094/tcp                     monitoringdemo_telegraf_1
-ee8e0e37c3d5        grafana/grafana:4.5.2                                 "/run.sh"                47 seconds ago      Up 41 seconds           0.0.0.0:3000->3000/tcp                           monitoringdemo_grafana_1
-e41e67f03bda        kapacitor:1.3.3                                       "/entrypoint.sh ka..."   47 seconds ago      Up 42 seconds           9092/tcp                                         monitoringdemo_kapacitor_1
-0434ff254b0d        docker.elastic.co/beats/metricbeat:5.6.3              "metricbeat -e"          48 seconds ago      Up 45 seconds                                                            monitoringdemo_metricbeat_1
-54918a98495b        logstash                                              "/docker-entrypoin..."   48 seconds ago      Up 45 seconds                                                            monitoringdemo_logstash_1
-aa2195088fd3        docker.elastic.co/kibana/kibana:5.5.2                 "/bin/sh -c /usr/l..."   48 seconds ago      Up 46 seconds           0.0.0.0:5601->5601/tcp                           monitoringdemo_kibana_1
-1cdf19050ba7        influxdb:1.3.6                                        "/entrypoint.sh in..."   55 seconds ago      Up 46 seconds           0.0.0.0:8086->8086/tcp                           monitoringdemo_influxdb_1
-6e7b59ee5778        docker.elastic.co/elasticsearch/elasticsearch:5.6.0   "/bin/bash bin/es-..."   55 seconds ago      Up 47 seconds           0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp   monitoringdemo_elasticsearch_1
-59e31954ec69        ubuntu                                                "bash -c 'echo ${R..."   55 seconds ago      Up Less than a second                                                    monitoringdemo_example_1
-``` 
 
 You can create alerts etc. That's great.
 
-# Step 7 - Kafka the data hub
+## Step 7 - Kafka the data hub
 
 We can't have all this data for ourselves right ? We most probably are not the same users.
 
@@ -528,7 +608,15 @@ And add the link to telegraf container to kafka server
       - kafka
 ```
 
-Simple right ?
+The Kafka story
+
+```mermaid
+graph LR;
+    Telegraf-- listen to -->Docker;
+    Telegraf-- write to -->Influxdb;
+    Telegraf-- write to -->Kafka
+    Kafka-- read/writes -->Zookeeper
+```
 
 Run the demo `docker-compose -f docker-compose-step7.yml up` 
 
@@ -554,10 +642,10 @@ Yes it looks like it !
 
 We are in a pretty good shape right ?
 
-Well, no. We have many jvm based components such as kafka, and we know its monitoring is based on the JMX standard.
+Well, we can do better. We have many jvm based components such as kafka, and we know its monitoring is based on the JMX standard.
 
 
-# Step 8 - Enter JMX !
+## Step 8 - Enter JMX !
 
 Telegraf is a go application, it does not speak jvm natively. However it speaks [jolokia](https://jolokia.org/).
 
@@ -624,7 +712,7 @@ mbean = "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec"
 
 Then configure telegraf to use the new configuration with jolokia input
 
-``yaml
+```yaml
   telegraf:
     image: telegraf:1.4.0
     volumes:
@@ -646,26 +734,16 @@ $ docker images |  grep demo
 monitoringdemo_kafka                            latest              5a746c9ff5ea        2 minutes ago       270MB
 ```
 
-The current running containers should be 
+The JMX story
 
-```bash
-$ docker ps
-CONTAINER ID        IMAGE                                                 COMMAND                  CREATED             STATUS              PORTS                                                NAMES
-3354f56b2a52        telegraf:1.4.0                                        "/entrypoint.sh te..."   26 seconds ago      Up 24 seconds       8092/udp, 8125/udp, 8094/tcp                         monitoringdemo_telegraf_1
-2f988745a6c5        monitoringdemo_kafka                                  "start-kafka.sh"         28 seconds ago      Up 26 seconds       0.0.0.0:32777->9092/tcp                              monitoringdemo_kafka_1
-0646e529b4fd        chronograf:1.3.9                                      "/entrypoint.sh ch..."   17 minutes ago      Up 26 seconds       0.0.0.0:8888->8888/tcp                               monitoringdemo_chronograf_1
-b8247f717c74        bekt/logspout-logstash                                "/bin/logspout"          17 minutes ago      Up 1 second         80/tcp                                               monitoringdemo_logspout_1
-fccff7e97f9b        logstash                                              "/docker-entrypoin..."   17 minutes ago      Up 25 seconds                                                            monitoringdemo_logstash_1
-47da7b35198f        docker.elastic.co/beats/metricbeat:5.6.3              "metricbeat -e"          17 minutes ago      Up 26 seconds                                                            monitoringdemo_metricbeat_1
-da1f87fba8f8        docker.elastic.co/beats/metricbeat:5.6.3              "bash -c 'sleep 30..."   17 minutes ago      Up 24 seconds                                                            monitoringdemo_metricbeat-dashboard-setup_1
-d826c0758954        docker.elastic.co/kibana/kibana:5.5.2                 "/bin/sh -c /usr/l..."   17 minutes ago      Up 25 seconds       0.0.0.0:5601->5601/tcp                               monitoringdemo_kibana_1
-d8cb4c3218ff        grafana/grafana:4.5.2                                 "/run.sh"                17 minutes ago      Up 24 seconds       0.0.0.0:3000->3000/tcp                               monitoringdemo_grafana_1
-028c59f14ef0        kapacitor:1.3.3                                       "/entrypoint.sh ka..."   17 minutes ago      Up 27 seconds       9092/tcp                                             monitoringdemo_kapacitor_1
-610250eb6b64        docker.elastic.co/elasticsearch/elasticsearch:5.6.0   "/bin/bash bin/es-..."   17 minutes ago      Up 27 seconds       0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp       monitoringdemo_elasticsearch_1
-e46179d32253        ubuntu                                                "bash -c 'echo ${R..."   17 minutes ago      Up 1 second                                                              monitoringdemo_example_1
-7d17b91e41b9        influxdb:1.3.6                                        "/entrypoint.sh in..."   17 minutes ago      Up 28 seconds       0.0.0.0:8086->8086/tcp                               monitoringdemo_influxdb_1
-3313ab033d4a        wurstmeister/zookeeper:3.4.6                          "/bin/sh -c '/usr/..."   17 minutes ago      Up 28 seconds       22/tcp, 2888/tcp, 3888/tcp, 0.0.0.0:2181->2181/tcp   monitoringdemo_zookeeper_1
+```mermaid
+graph LR;
+    Telegraf-- write to -->Kafka
+    Telegraf-- get metrics -->Jolokia
+    Jolokia-- reads JMX -->Kafka
 ```
+
+
 
 Do we have jolokia metrics ? 
 
@@ -677,7 +755,7 @@ jolokia,jolokia_name=kafka,jolokia_port=8778,jolokia_host=kafka,host=cde5575b52a
 
 Well looks like we do !
 
-# Step 9 : Event better making visualisation be more human friendly !
+## Step 9 - Self descriptive visualizations
 
 Let's rely on https://grafana.com/plugins/jdbranham-diagram-panel to show pretty diagram that will be live
 
@@ -702,20 +780,21 @@ You can now create live diagrams !
 ![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
 
 
-# Step 10 : Your sql databases are back
+## Step 10 - Your sql databases are back
 
 __Note:__  Todo
 
 Leverage your sql databases in your grafana dashboards with http://docs.grafana.org/features/datasources/mysql/
-- you can consume your database changes and push them to kafka https://www.confluent.io/product/connectors/
 
-# Step 11 : Share your database tables as kafka table
+You can consume your database changes and push them to kafka https://www.confluent.io/product/connectors/
 
-*C*hange *D*ata *C*apture and [Kafka connect](https://kafka.apache.org/documentation/#connect) 
+## Step 11 - Share your database tables as kafka table
+
+Change Data Capture and [Kafka connect](https://kafka.apache.org/documentation/#connect) 
 Look at the ecosystem : https://www.confluent.io/product/connectors/
 
 
-# Step 12 : Going even further with Kafka using KSQL
+## Step 12 - Going even further with Kafka using KSQL
 
 __Note:__  Todo
 
@@ -730,32 +809,32 @@ CREATE TABLE possible_fraud AS
   HAVING count(*) > 3;
 ```
 
-# Step 13 : Going C3
+## Step 13 - Going C3
 
 __Note:__  Todo
 
 Now that kafka, ksql, connect is driving many parts of your monitoring, you want to have a dedicated tool that will enrich your existing metrics/visualizations : https://www.confluent.io/product/control-center/
 
 
-# Step 14 : Going prometheus
+## Step 14 - Going Prometheus
 
 __Note:__  Todo
 
 https://prometheus.io/
 
-# Step 15 : Going distributed open tracing
+## Step 15 - Going distributed open tracing
 
 __Note:__  Todo
 
 http://opentracing.io/
 
-# Step 16 : Monitoring Federation 
+## Step 16 - Monitoring Federation 
 
 __Note:__  Todo
 
 Have a global overview of many clusters.
 
-# Step 17 : Security
+## Step 17 - Security
 
 __Note:__  Todo
 
