@@ -66,6 +66,13 @@ hello world
 
 When outputing to `stdout` and `stderr` docker captures these logs and send them to the log bus. A listener listen to logs and store container logs into their own log file.
 
+```mermaid
+graph LR;
+    container --> Docker;
+    Docker -- write to --> stdout;
+    Docker -- write to --> File;
+```
+
 In order to know where it's stored just inspect the container with `docker inspect monitoringdemo_example_1` you should see
  
 ```bash
@@ -111,27 +118,20 @@ $ docker inspect monitoringdemo_example_1 | jq -r '.[].LogPath'
 More about logs : https://docs.docker.com/engine/admin/logging/overview/#use-environment-variables-or-labels-with-logging-drivers
 
 
-```mermaid
-graph LR;
-    Container-->Docker;
-    Docker-- write to -->File;
-    Docker-- write to -->stdout;
-```
-
 # 3. Listening for logs using a container
 
 The objective now is to leverage the docker event bus, listen to it and output it on the console.
 
 ```mermaid
 graph LR;
-    Container-->Docker((Docker));
-    Docker-- write to -->File;
-    Docker-- write to -->stdout;
-    Listener-- listen to -->Docker;
-    Listener-- write to -->stdout;
+    container --> Docker((Docker));
+    Docker -- write to --> stdout;
+    Docker -- write to --> File;
+    Listener -- listen to --> Docker;
+    Listener -- write to --> stdout;
 ```
 
-We should see twice anything that is outputed on `stdout`.
+Therefore we should see **twice** anything that is outputed on `stdout`.
 
 
 We will use [logspout](https://github.com/gliderlabs/logspout) to listen for all the docker logs.
@@ -170,12 +170,12 @@ So here is are the containers at play:
 
 ```mermaid
 graph LR;
-    Container-->Docker((Docker));
-    Docker-- write to -->File;
-    Docker-- write to -->stdout;
-    Logspout-- listen to -->Docker;
-    Logspout-- write to -->Logstash;
-    Logstash-- write to -->stdout;
+    container --> Docker((Docker));
+    Docker -- write to --> stdout;
+    Docker -- write to --> File;
+    Logspout -- listen to --> Docker;
+    Logspout -- write to --> Logstash;
+    Logstash -- write to --> stdout;
 ```
 
 
@@ -277,10 +277,10 @@ Here are the containers involved:
 
 ```mermaid
 graph LR;
-    Logspout--listen to-->Docker((Docker));
-    Logspout-- write to -->Logstash;
-    Logstash-- write to -->Elasticsearch;
-    Kibana-- reads -->Elasticsearch;
+    Logspout --listen to--> Docker((Docker));
+    Logspout -- write to --> Logstash;
+    Logstash -- write to --> Elasticsearch;
+    Kibana -- reads --> Elasticsearch;
 ```
 
 Run the demo with `docker-compose -f docker-compose-step3.yml up`
@@ -340,10 +340,10 @@ Here are the containers at play :
 
 ```mermaid
 graph LR;
-    MetricBeat-- listen to -->Docker((Docker));
-    MetricBeat-- write to -->Elasticsearch;
-    MetricBeat-- setup dashboards -->Kibana;
-    Kibana-- reads from -->Elasticsearch;
+    MetricBeat -- listen to --> Docker((Docker));
+    MetricBeat -- write to --> Elasticsearch;
+    MetricBeat -- setup dashboards --> Kibana;
+    Kibana -- reads from --> Elasticsearch;
 ```
 
 Run the demo with `docker-compose -f docker-compose-step4.yml up` then look at the 
@@ -464,25 +464,25 @@ The ELK story:
 
 ```mermaid
 graph LR;
-    Logspout-- listen to -->Docker((Docker));
-    Logspout-- write to -->Logstash;
-    Logstash-- write to -->Elasticsearch;
-    Kibana-- reads from -->Elasticsearch;
-    MetricBeat-- listen to -->Docker;
-    MetricBeat-- write to -->Elasticsearch;
-    MetricBeat-- one time dashboards setup -->Kibana;
+    Logspout -- listen to --> Docker((Docker));
+    Logspout -- write to --> Logstash;
+    Logstash -- write to --> Elasticsearch;
+    Kibana -- reads from --> Elasticsearch;
+    MetricBeat -- listen to --> Docker;
+    MetricBeat -- write to --> Elasticsearch;
+    MetricBeat -- one time dashboards setup --> Kibana;
 ```
 
 And the TICK story:
 
 ```mermaid
 graph LR;
-    Telegraf-- listen to -->Docker((Docker));
-    Telegraf-- write to -->Influxdb;
-    Chronograf-- reads from -->Influxdb;
-    Kapacitor-- listen to -->Influxdb;
-    Chronograf-- setup rules -->Kapacitor;
-    Kapacitor-- notifies -->Notification;
+    Telegraf -- listen to --> Docker((Docker));
+    Telegraf -- write to --> Influxdb;
+    Chronograf -- reads from --> Influxdb;
+    Kapacitor -- listen to --> Influxdb;
+    Chronograf -- setup rules --> Kapacitor;
+    Kapacitor -- notifies --> Notification;
 ```
 
 Run the demo with `docker-compose -f docker-compose-step5.yml up` then look at the following links
@@ -537,10 +537,10 @@ Well there's a local build that does just that
 
 ```mermaid
 graph LR;
-    Grafana-- reads from -->Influxdb
-    Grafana-- reads from -->Elasticsearch
-    Grafana-- write to -->AlertChannels
-    GrafanaSetup-- one time setup -->Grafana
+    Grafana -- reads from --> Influxdb
+    Grafana -- reads from --> Elasticsearch
+    Grafana -- write to --> AlertChannels
+    GrafanaSetup -- one time setup --> Grafana
 ```
 
 Run the demo with `docker-compose -f docker-compose-step6.yml up` then enjoy your [docker metrics](http://localhost:3000/dashboard/db/docker?refresh=5s&orgId=1&from=now-5m&to=now) in grafan!
@@ -613,10 +613,10 @@ The Kafka story
 
 ```mermaid
 graph LR;
-    Telegraf-- listen to -->Docker;
-    Telegraf-- write to -->Influxdb;
-    Telegraf-- write to -->Kafka
-    Kafka-- read/writes -->Zookeeper
+    Telegraf -- listen to --> Docker;
+    Telegraf -- write to --> Influxdb;
+    Telegraf -- write to --> Kafka
+    Kafka -- read/writes --> Zookeeper
 ```
 
 Run the demo `docker-compose -f docker-compose-step7.yml up` 
@@ -739,9 +739,9 @@ The JMX story
 
 ```mermaid
 graph LR;
-    Telegraf-- write to -->Kafka
-    Telegraf-- get metrics -->Jolokia
-    Jolokia-- reads JMX -->Kafka
+    Telegraf -- write to --> Kafka
+    Telegraf -- get metrics --> Jolokia
+    Jolokia -- reads JMX --> Kafka
 ```
 
 
@@ -840,5 +840,3 @@ Have a global overview of many clusters.
 __Note:__  Todo
 
 Always a bit of a pain.
-
-<script type="text/javascript" src="https://raw.githubusercontent.com/wiki/framiere/monitoring-demo/mermaid.min.js"></script>
