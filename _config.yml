@@ -1,0 +1,7 @@
+# Name of your blog (this will show up at the top of your page and in the RSS feed)
+name: Monitoring demo
+markdown: kramdown
+plugins: 
+  - jekyll-mermaid
+mermaid:
+  src: 'mermaid.min.js'
