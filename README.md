@@ -10,11 +10,11 @@ This project is about giving you a step by step introduction on how to leverage 
 - [2. container logging](#2-container-logging)
 - [3. Listening for logs using a container](#3-listening-for-logs-using-a-container)
 - [4. Elasticsearch](#4-elasticsearch)
-- [5. Elasticsearch Metrics !](#5-elasticsearch-metrics-)
+- [5. Elasticsearch Metrics !](#5-elasticsearch-metrics)
 - [6. Better metrics: the TICK stack](#6-better-metrics-the-tick-stack)
 - [7. Getting the best of the ecosystem](#7-getting-the-best-of-the-ecosystem)
 - [8. Kafka the data hub](#8-kafka-the-data-hub)
-- [9. Enter JMX !](#9-enter-jmx-)
+- [9. Enter JMX !](#9-enter-jmx)
 - [10. Self descriptive visualizations](#10-self-descriptive-visualizations)
 - [11. Your sql databases are back](#11-your-sql-databases-are-back)
 - [12. Share your database tables as kafka table](#12-share-your-database-tables-as-kafka-table)
@@ -840,3 +840,4 @@ Have a global overview of many clusters.
 __Note:__  Todo
 
 Always a bit of a pain.
+

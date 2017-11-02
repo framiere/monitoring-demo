@@ -1,5 +1,0 @@
-version: "3"
-services:
-  example:
-    image: ubuntu
-    command: echo hello world
