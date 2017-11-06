@@ -4,6 +4,8 @@ This project is about giving you a step by step introduction on how to leverage 
 
  __Note:__ This project is _only_ intended to present ideas.
 
+__Note:__ if you are using [docker for mac](https://docs.docker.com/docker-for-mac/) please assign at least 5go of memory.
+
 <!-- TOC -->
 
 - [1. Introduction](#1-introduction)
@@ -113,7 +115,8 @@ Perfect, let's extract that field now with [jq](https://stedolan.github.io/jq/)
 $ docker inspect monitoringdemo_example_1 | jq -r '.[].LogPath'
 /var/lib/docker/containers/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a-json.log
 ```
-`Note`: you will not to be able to read this file directly using [docker for mac](https://docs.docker.com/docker-for-mac/).
+
+__Note:__ you will not to be able to read this file directly using [docker for mac](https://docs.docker.com/docker-for-mac/).
 
 More about logs : https://docs.docker.com/engine/admin/logging/overview/#use-environment-variables-or-labels-with-logging-drivers
 
