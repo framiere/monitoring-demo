@@ -13,7 +13,7 @@
         }
       ]
     },
-    "description": "Data retrieved via jolokia java agent",
+    "description": "Kafka group lag",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
@@ -23,113 +23,8 @@
     "rows": [
       {
         "collapse": false,
-        "height": "250px",
+        "height": 247,
         "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "influxdb",
-            "fill": 1,
-            "id": 1,
-            "legend": {
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "show": false,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "span": 6,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "dsType": "influxdb",
-                "groupBy": [
-                  {
-                    "params": [
-                      "$__interval"
-                    ],
-                    "type": "time"
-                  },
-                  {
-                    "params": [
-                      "null"
-                    ],
-                    "type": "fill"
-                  }
-                ],
-                "measurement": "jolokia",
-                "orderByTime": "ASC",
-                "policy": "default",
-                "refId": "A",
-                "resultFormat": "time_series",
-                "select": [
-                  [
-                    {
-                      "params": [
-                        "bytes_in_Count"
-                      ],
-                      "type": "field"
-                    },
-                    {
-                      "params": [],
-                      "type": "mean"
-                    }
-                  ]
-                ],
-                "tags": []
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Bytes in",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ]
-          },
           {
             "aliasColors": {},
             "bars": false,
@@ -143,7 +38,7 @@
               "current": false,
               "max": false,
               "min": false,
-              "show": false,
+              "show": true,
               "total": false,
               "values": false
             },
@@ -157,11 +52,12 @@
             "renderer": "flot",
             "seriesOverrides": [],
             "spaceLength": 10,
-            "span": 6,
+            "span": 12,
             "stack": false,
             "steppedLine": false,
             "targets": [
               {
+                "alias": "$tag_group",
                 "dsType": "influxdb",
                 "groupBy": [
                   {
@@ -172,12 +68,18 @@
                   },
                   {
                     "params": [
+                      "group"
+                    ],
+                    "type": "tag"
+                  },
+                  {
+                    "params": [
                       "null"
                     ],
                     "type": "fill"
                   }
                 ],
-                "measurement": "jolokia",
+                "measurement": "kafka_group_lag",
                 "orderByTime": "ASC",
                 "policy": "default",
                 "refId": "A",
@@ -186,7 +88,7 @@
                   [
                     {
                       "params": [
-                        "bytes_out_Count"
+                        "lag"
                       ],
                       "type": "field"
                     },
@@ -202,7 +104,7 @@
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Bytes out",
+            "title": "Group lags",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -218,7 +120,7 @@
             },
             "yaxes": [
               {
-                "format": "bytes",
+                "format": "short",
                 "label": null,
                 "logBase": 1,
                 "max": null,
@@ -254,7 +156,7 @@
             "dashes": false,
             "datasource": null,
             "fill": 1,
-            "id": 3,
+            "id": 4,
             "legend": {
               "avg": false,
               "current": false,
@@ -274,11 +176,12 @@
             "renderer": "flot",
             "seriesOverrides": [],
             "spaceLength": 10,
-            "span": 12,
+            "span": 6,
             "stack": false,
             "steppedLine": false,
             "targets": [
               {
+                "alias": "$tag_group",
                 "dsType": "influxdb",
                 "groupBy": [
                   {
@@ -289,24 +192,27 @@
                   },
                   {
                     "params": [
+                      "group"
+                    ],
+                    "type": "tag"
+                  },
+                  {
+                    "params": [
                       "null"
                     ],
                     "type": "fill"
                   }
                 ],
-                "hide": false,
-                "measurement": "jolokia",
+                "measurement": "kafka_group_lag",
                 "orderByTime": "ASC",
                 "policy": "default",
-                "query": "SELECT mean(\"bytes_out_Count\") /mean(\"bytes_in_Count\") FROM \"jolokia\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-                "rawQuery": true,
                 "refId": "A",
                 "resultFormat": "time_series",
                 "select": [
                   [
                     {
                       "params": [
-                        "bytes_in_Count"
+                        "lag"
                       ],
                       "type": "field"
                     },
@@ -316,13 +222,137 @@
                     }
                   ]
                 ],
-                "tags": []
+                "tags": [
+                  {
+                    "key": "group",
+                    "operator": "=",
+                    "value": "fast-consumer"
+                  }
+                ]
               }
             ],
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Read/Write Ratio",
+            "title": "Fast-consumer",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ]
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": null,
+            "fill": 1,
+            "id": 5,
+            "legend": {
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "show": true,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "span": 6,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "$tag_group",
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "group"
+                    ],
+                    "type": "tag"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "kafka_group_lag",
+                "orderByTime": "ASC",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "lag"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "group",
+                    "operator": "=",
+                    "value": "slow-consumer"
+                  }
+                ]
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Slow-consumer",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -366,7 +396,9 @@
     ],
     "schemaVersion": 14,
     "style": "dark",
-    "tags": [],
+    "tags": [
+      "kafka"
+    ],
     "templating": {
       "list": []
     },
@@ -400,7 +432,6 @@
       ]
     },
     "timezone": "",
-    "title": "Kafka",
+    "title": "Kafka Group Lag",
     "version": 2
-  }
-}
+  }}

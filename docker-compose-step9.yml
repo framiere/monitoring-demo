@@ -59,6 +59,7 @@ services:
       - "8086:8086"
   telegraf:
     image: telegraf:1.4.3
+    restart: on-failure
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
       - ./telegraf/telegraf-with-kafka-output-and-jolokia-and-listener.conf:/etc/telegraf/telegraf.conf:ro
@@ -118,11 +119,33 @@ services:
       GROUP_ID: slow-consumer
     depends_on: 
       - kafka
-  group-kafka-lag:
+    logging:
+      driver: none
+  fast-kafka-consumer:
+    image: wurstmeister/kafka:1.0.0
+    restart: on-failure
+    command: "kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic telegraf --consumer-property group.id=fast-consumer"
+    depends_on:
+      - kafka
+    logging:
+      driver: none
+  slow-consumer-kafka-lag:
     build: group-kafka-lag/
     restart: on-failure
     environment:
-      GROUP_ID: slow-consumer
+      GROUP: slow-consumer
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      TELEGRAF_HOST: telegraf
+      TELEGRAF_PORT: 8094
+    depends_on:
+      - kafka
+      - telegraf
+  fast-consumer-kafka-lag:
+    build: group-kafka-lag/
+    restart: on-failure
+    environment:
+      GROUP: fast-consumer
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
       TELEGRAF_HOST: telegraf
