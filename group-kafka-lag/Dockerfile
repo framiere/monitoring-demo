@@ -1,4 +1,4 @@
-FROM wurstmeister/kafka:0.11.0.1
+FROM wurstmeister/kafka:1.0.0
 
 ENV GROUP_ID slow-consumer
 ENV KAFKA_HOST kafka

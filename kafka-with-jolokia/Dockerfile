@@ -1,4 +1,4 @@
-FROM wurstmeister/kafka:0.11.0.1
+FROM wurstmeister/kafka:1.0.0
 
 ENV JOLOKIA_VERSION 1.3.5
 ENV JOLOKIA_HOME /usr/jolokia-${JOLOKIA_VERSION}

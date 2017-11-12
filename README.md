@@ -370,7 +370,7 @@ Let's start with `influxdb`
 
 ```yaml
   influxdb:
-    image: influxdb:1.3.6
+    image: influxdb:1.3.7
     ports:
       - "8086:8086"
 ```
@@ -392,7 +392,7 @@ Then chronograf
 
 ```yaml
   chronograf:
-    image: chronograf:1.3.9
+    image: chronograf:1.3.10
     environment:
       KAPACITOR_URL: http://kapacitor:9092
       INFLUXDB_URL: http://influxdb:8086
@@ -407,7 +407,7 @@ Then `telegraf`
 
 ```yaml
   telegraf:
-    image: telegraf:1.4.0
+    image: telegraf:1.4.3
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
@@ -514,7 +514,7 @@ Let's do that together by leveraging [grafana](https://grafana.com)
 
 ```yaml
   grafana:
-    image: grafana/grafana:4.5.2
+    image: grafana/grafana:4.6.1
     ports:
       - "3000:3000"
     depends_on:
@@ -578,7 +578,7 @@ Same for thing for kafka
 
 ```yaml
   kafka:
-    image: wurstmeister/kafka:0.11.0.1
+    image: wurstmeister/kafka:1.0.0
     ports:
       - "9092"
     environment:
@@ -588,7 +588,7 @@ Same for thing for kafka
       
 ```
 
-Now we can update telegraf to ask to ship all its data also to kafka
+Now we can update telegraf to ask to ship all its data to kafka too.
 
 Let's add the kafka output in the telegraf configuration
 
@@ -602,7 +602,7 @@ And add the link to telegraf container to kafka server
 
 ```yaml
   telegraf:
-    image: telegraf:1.4.0
+    image: telegraf:1.4.3
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
       - ./telegraf/telegraf-with-kafka-output.conf:/etc/telegraf/telegraf.conf:ro
@@ -658,7 +658,7 @@ Let's leverage that.
 So let's creat our own image based on the `wurstmeister/kafka`, download jolokia and add it to the image.
 
 ```Dockerfile
-FROM wurstmeister/kafka:0.11.0.1
+FROM wurstmeister/kafka:1.0.0
 
 ENV JOLOKIA_VERSION 1.3.5
 ENV JOLOKIA_HOME /usr/jolokia-${JOLOKIA_VERSION}
@@ -718,7 +718,7 @@ Then configure telegraf to use the new configuration with jolokia input
 
 ```yaml
   telegraf:
-    image: telegraf:1.4.0
+    image: telegraf:1.4.3
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
       - ./telegraf/telegraf-with-kafka-output-and-jolokia.conf:/etc/telegraf/telegraf.conf:ro
@@ -819,7 +819,8 @@ The bash telemetry story
 ```mermaid
 graph LR;
     Telegraf -- write to --> Kafka
-    Bash -- sends to over TCP --> Telegraf
+    Group-Kafka-Lag -- read group metrics --> Kafka
+    Group-Kafka-Lag -- send metrics to over TCP --> Telegraf
 ```
 
 
@@ -851,7 +852,7 @@ For that we need to install a plugin, let's leverage the grafana `GF_INSTALL_PLU
 
 ```yaml
   grafana:
-    image: grafana/grafana:4.5.2
+    image: grafana/grafana:4.6.1
     ports:
       - "3000:3000"
     environment:
