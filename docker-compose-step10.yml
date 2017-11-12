@@ -88,6 +88,8 @@ services:
     image: grafana/grafana:4.5.2
     ports:
       - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: jdbranham-diagram-panel
     depends_on:
       - influxdb
       - elasticsearch

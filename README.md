@@ -759,9 +759,93 @@ jolokia,jolokia_name=kafka,jolokia_port=8778,jolokia_host=kafka,host=cde5575b52a
 
 Well looks like we do !
 
+# 10. Let's do some manual monitoring
+
+Let's say you have some hand coded monitoring tools that you did in python or bash as such
+
+```bash
+#!/bin/bash
+group=$1
+kafkaHost=$2
+kafkaPort=$3
+kafka-consumer-groups.sh --bootstrap-server ${kafkaHost}:${kafkaPort} --group ${group} --describe 2> /dev/null \
+      | tail -n +3 \
+      | awk -v GROUP=${group} '{print "kafka_group_lag,group="GROUP",topic="$1",partition="$2",host="$7" current_offset="$3"i,log_end_offset="$4"i,lag="$5"i"}' \
+```
+
+
+You have many possibilities there : 
+
+The [exec plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/exec) : 
+```
+[[inputs.exec]]
+  commands = ["/kafka-lag.sh mygroup"]
+  timeout = "5s"
+```
+
+
+You can also make Telegraf listen [line protocol](https://docs.influxdata.com/influxdb/v1.3/write_protocols/line_protocol_tutorial/) metrics on a [socket](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/socket_listener)
+
+__Note:__ Telegraf has many networking options and protocols supported.
+
+```
+[[inputs.socket_listener]]
+    service_address = "tcp://:8094"
+``` 
+
+You would then update your bash to send the data to telegraf!
+
+```bash
+#!/bin/bash
+group=$1
+kafkaHost=$2
+kafkaPort=$3
+telegrafHost=$4
+telegrafPort=$5
+echo Fetching metrics for the ${group} group in ${kafkaHost}:${kafkaPort} and pushing the metrics into ${telegrafHost}:${telegrafPort}
+while true
+do
+    kafka-consumer-groups.sh --bootstrap-server ${kafkaHost}:${kafkaPort} --group ${group} --describe 2> /dev/null \
+         | tail -n +3 \
+         | awk -v GROUP=${group} '{print "kafka_group_lag,group="GROUP",topic="$1",partition="$2",host="$7" current_offset="$3"i,log_end_offset="$4"i,lag="$5"i"}' \
+         | nc ${telegrafHost} ${telegrafPort}
+         echo Sleeping for 30s
+         sleep 30s
+done
+```
+
+The bash telemetry story
+
+```mermaid
+graph LR;
+    Telegraf -- write to --> Kafka
+    Bash -- sends to over TCP --> Telegraf
+```
+
+
+Run the demo `docker-compose -f docker-compose-step9.yml up`
+
+You will see 
+```
+$ docker logs -f monitoringdemo_slow-kafka-consumer_1 | grep kafka_group_lag
+offset-25911, key=null, value=kafka_group_lag,host=/172.24.0.17,group=slow-consumer,topic=telegraf partition=0i,current_offset=25600i,log_end_offset=25800i,lag=200i 1510509893909729899
+offset-26111, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 partition=0i,current_offset=25800i,log_end_offset=26000i,lag=200i 1510509906032764197
+offset-26311, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 partition=0i,current_offset=26200i,log_end_offset=26200i,lag=0i 1510509918090864414
+offset-26710, key=null, value=kafka_group_lag,topic=telegraf,host=/172.24.0.17,group=slow-consumer log_end_offset=26599i,lag=199i,partition=0i,current_offset=26400i 1510509932312178178
+offset-26910, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 partition=0i,current_offset=26511i,log_end_offset=26799i,lag=288i 1510509945549541440
+offset-27110, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 partition=0i,current_offset=26599i,log_end_offset=26999i,lag=400i 1510509958615772566
+offset-27398, key=null, value=kafka_group_lag,topic=telegraf,host=/172.24.0.17,group=slow-consumer partition=0i,current_offset=27000i,log_end_offset=27398i,lag=398i 1510509971752483737
+offset-27709, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 partition=0i,current_offset=27200i,log_end_offset=27598i,lag=398i 1510509984690747544
+offset-27909, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 lag=0i,partition=0i,current_offset=27798i,log_end_offset=27798i 1510509998248190703
+offset-28197, key=null, value=kafka_group_lag,group=slow-consumer,topic=telegraf,host=/172.24.0.17 log_end_offset=28193i,lag=195i,partition=0i,current_offset=27998i 1510510011680360765
+```
+
+You can now graph on slowness of consumers.
+
+
 # 10. Self descriptive visualizations
 
-Let's rely on https://grafana.com/plugins/jdbranham-diagram-panel to show pretty diagram that will be live
+Let's rely on [jdbranham-diagram-panel](https://grafana.com/plugins/jdbranham-diagram-panel) to show pretty diagram that will be live
 
 For that we need to install a plugin, let's leverage the grafana `GF_INSTALL_PLUGINS` environment variable
 
@@ -777,7 +861,7 @@ For that we need to install a plugin, let's leverage the grafana `GF_INSTALL_PLU
       - elasticsearch
 ```
 
-Run the demo `docker-compose -f docker-compose-step9.yml up`
+Run the demo `docker-compose -f docker-compose-step10.yml up`
 
 You can now create live diagrams !
 
