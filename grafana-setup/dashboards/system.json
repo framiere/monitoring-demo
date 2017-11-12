@@ -36,7 +36,7 @@
     "hideControls": false,
     "id": null,
     "links": [],
-    "refresh": "1m",
+    "refresh": "5s",
     "rows": [
       {
         "collapse": false,
@@ -8073,7 +8073,7 @@
       ]
     },
     "time": {
-      "from": "now-1h",
+      "from": "now-5m",
       "to": "now"
     },
     "timepicker": {

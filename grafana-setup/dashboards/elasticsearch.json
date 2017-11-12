@@ -41,7 +41,7 @@
         "type": "dashboards"
       }
     ],
-    "refresh": false,
+    "refresh": "5s",
     "rows": [
       {
         "collapse": false,
@@ -16507,8 +16507,8 @@
       "list": []
     },
     "time": {
-      "from": "2017-10-04T11:35:00.000Z",
-      "to": "2017-10-04T11:47:00.000Z"
+      "from": "now-5m",
+      "to": "now"
     },
     "timepicker": {
       "refresh_intervals": [
