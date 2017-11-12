@@ -18,7 +18,15 @@
     "gnetId": null,
     "graphTooltip": 0,
     "hideControls": false,
-    "links": [],
+    "links": [
+      {
+        "icon": "external link",
+        "tags": [
+          "kafka"
+        ],
+        "type": "dashboards"
+      }
+    ],
     "refresh": "5s",
     "rows": [
       {
@@ -366,7 +374,9 @@
     ],
     "schemaVersion": 14,
     "style": "dark",
-    "tags": [],
+    "tags": [
+      "kafka"
+    ],
     "templating": {
       "list": []
     },
