@@ -17,15 +17,16 @@ __Note:__ if you are using [docker for mac](https://docs.docker.com/docker-for-m
 - [7. Getting the best of the ecosystem](#7-getting-the-best-of-the-ecosystem)
 - [8. Kafka the data hub](#8-kafka-the-data-hub)
 - [9. Enter JMX !](#9-enter-jmx)
-- [10. Self descriptive visualizations](#10-self-descriptive-visualizations)
-- [11. Your sql databases are back](#11-your-sql-databases-are-back)
-- [12. Share your database tables as kafka table](#12-share-your-database-tables-as-kafka-table)
-- [13. Going even further with Kafka using KSQL](#13-going-even-further-with-kafka-using-ksql)
-- [14. Going C3](#14-going-c3)
-- [15. Going Prometheus](#15-going-prometheus)
-- [16. Going distributed open tracing](#16-going-distributed-open-tracing)
-- [17. Monitoring Federation](#17-monitoring-federation)
-- [18. Security](#18-security)
+- [10. Let's do some manual monitoring](#10-lets-do-some-manual-monitoring)
+- [11. Self descriptive visualizations](#11-self-descriptive-visualizations)
+- [12. Your sql databases are back](#12-your-sql-databases-are-back)
+- [13. Share your database tables as kafka table](#13-share-your-database-tables-as-kafka-table)
+- [14. Going even further with Kafka using KSQL](#14-going-even-further-with-kafka-using-ksql)
+- [15. Going C3](#15-going-c3)
+- [16. Going Prometheus](#16-going-prometheus)
+- [17. Going distributed open tracing](#17-going-distributed-open-tracing)
+- [18. Monitoring Federation](#18-monitoring-federation)
+- [19. Security](#19-security)
 
 <!-- /TOC -->
 
@@ -829,7 +830,7 @@ Run the demo `docker-compose -f docker-compose-step9.yml up`
 You can now graph on slowness of consumers.
 
 
-# 10. Self descriptive visualizations
+# 11. Self descriptive visualizations
 
 Let's rely on [jdbranham-diagram-panel](https://grafana.com/plugins/jdbranham-diagram-panel) to show pretty diagram that will be live
 
@@ -854,7 +855,7 @@ You can now create live diagrams !
 ![live diagrams](https://raw.githubusercontent.com/jdbranham/grafana-diagram/master/src/img/diagram.PNG?raw=true "diagram") 
 
 
-# 11. Your sql databases are back
+# 12. Your sql databases are back
 
 __Note:__  Todo
 
@@ -862,13 +863,13 @@ Leverage your sql databases in your grafana dashboards with http://docs.grafana.
 
 You can consume your database changes and push them to kafka https://www.confluent.io/product/connectors/
 
-# 12. Share your database tables as kafka table
+# 13. Share your database tables as kafka table
 
 Change Data Capture and [Kafka connect](https://kafka.apache.org/documentation/#connect) 
 Look at the ecosystem : https://www.confluent.io/product/connectors/
 
 
-# 13. Going even further with Kafka using KSQL
+# 14. Going even further with Kafka using KSQL
 
 __Note:__  Todo
 
@@ -883,32 +884,32 @@ CREATE TABLE possible_fraud AS
   HAVING count(*) > 3;
 ```
 
-# 14. Going C3
+# 15. Going C3
 
 __Note:__  Todo
 
 Now that kafka, ksql, connect is driving many parts of your monitoring, you want to have a dedicated tool that will enrich your existing metrics/visualizations : https://www.confluent.io/product/control-center/
 
 
-# 15. Going Prometheus
+# 16. Going Prometheus
 
 __Note:__  Todo
 
 https://prometheus.io/
 
-# 16. Going distributed open tracing
+# 17. Going distributed open tracing
 
 __Note:__  Todo
 
 http://opentracing.io/
 
-# 17. Monitoring Federation 
+# 18. Monitoring Federation 
 
 __Note:__  Todo
 
 Have a global overview of many clusters.
 
-# 18. Security
+# 19. Security
 
 __Note:__  Todo
 
