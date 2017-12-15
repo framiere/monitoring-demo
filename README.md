@@ -656,7 +656,7 @@ Telegraf is a go application, it does not speak jvm natively. However it speaks 
 
 Let's leverage that.
 
-So let's creat our own image based on the `wurstmeister/kafka`, download jolokia and add it to the image.
+So let's create our own image based on the `wurstmeister/kafka`, download jolokia and add it to the image.
 
 ```Dockerfile
 FROM wurstmeister/kafka:1.0.0
