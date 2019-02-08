@@ -28,7 +28,7 @@ services:
     depends_on:
       - kibana
   logstash:
-    image: logstash
+    image: logstash:5
     restart: on-failure
     command: -e "input { udp { port => 5000 codec => json } } filter { if [docker][image] =~ /^logstash/ {  drop { } } } output { elasticsearch { hosts => "elasticsearch" } }"
     depends_on:
