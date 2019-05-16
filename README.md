@@ -48,22 +48,22 @@ Run it with `docker-compose -f docker-compose-step1.yml`
 
 ```bash
 $ docker-compose -f docker-compose-step1.yml up                                                 
-Creating network "monitoringdemo_default" with the default driver
-Creating monitoringdemo_example_1 ...
-Creating monitoringdemo_example_1 ... done
-Attaching to monitoringdemo_example_1
+Creating network "monitoring-demo_default" with the default driver
+Creating monitoring-demo_example_1 ...
+Creating monitoring-demo_example_1 ... done
+Attaching to monitoring-demo_example_1
 example_1  | hello world
-monitoringdemo_example_1 exited with code 0
+monitoring-demo_example_1 exited with code 0
 ```
 
 `Hello world` has been writen on `stdout`. How fancy ! 
 
 The output of the container has also been captured by docker.
 
-Run `docker logs monitoringdemo_example_1` you should see
+Run `docker logs monitoring-demo_example_1` you should see
 
 ```bash
-$ docker logs monitoringdemo_example_1                                
+$ docker logs monitoring-demo_example_1                                
 hello world
 ``` 
 
@@ -76,10 +76,10 @@ graph LR;
     Docker -- write to --> File;
 ```
 
-In order to know where it's stored just inspect the container with `docker inspect monitoringdemo_example_1` you should see
+In order to know where it's stored just inspect the container with `docker inspect monitoring-demo_example_1` you should see
  
 ```bash
-$ docker inspect monitoringdemo_example_1
+$ docker inspect monitoring-demo_example_1
 [
     {
         "Id": "cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a",
@@ -106,14 +106,14 @@ $ docker inspect monitoringdemo_example_1
 That's a lot of different information, let's look for the log info
 
 ```bash
-$ docker inspect monitoringdemo_example_1 | grep log  
+$ docker inspect monitoring-demo_example_1 | grep log  
         "LogPath": "/var/lib/docker/containers/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a-json.log",
 ```
 
 Perfect, let's extract that field now with [jq](https://stedolan.github.io/jq/)
 
 ```bash
-$ docker inspect monitoringdemo_example_1 | jq -r '.[].LogPath'
+$ docker inspect monitoring-demo_example_1 | jq -r '.[].LogPath'
 /var/lib/docker/containers/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a/cf1a86e1dc9ac16bc8f60b234f9b3e6310bd591dc385bc1da8e1081d2837752a-json.log
 ```
 
@@ -187,13 +187,13 @@ Run the demo with `docker-compose -f docker-compose-step2.yml up`, you should se
 
 ```bash
 $ docker-compose -f docker-compose-step2.yml up
-Recreating monitoringdemo_logstash_1 ...
-Recreating monitoringdemo_logstash_1
-Starting monitoringdemo_example_1 ...
-Recreating monitoringdemo_logstash_1 ... done
-Recreating monitoringdemo_logspout_1 ...
-Recreating monitoringdemo_logspout_1 ... done
-Attaching to monitoringdemo_example_1, monitoringdemo_logstash_1, monitoringdemo_logspout_1
+Recreating monitoring-demo_logstash_1 ...
+Recreating monitoring-demo_logstash_1
+Starting monitoring-demo_example_1 ...
+Recreating monitoring-demo_logstash_1 ... done
+Recreating monitoring-demo_logspout_1 ...
+Recreating monitoring-demo_logspout_1 ... done
+Attaching to monitoring-demo_example_1, monitoring-demo_logstash_1, monitoring-demo_logspout_1
 example_1   | 11597
 example_1   | 9666
 example_1   | 3226
@@ -210,7 +210,7 @@ logstash_1  |        "message" => "10854",
 logstash_1  |         "docker" => {
 logstash_1  |            "image" => "ubuntu",
 logstash_1  |         "hostname" => "15716aaf6095",
-logstash_1  |             "name" => "/monitoringdemo_example_1",
+logstash_1  |             "name" => "/monitoring-demo_example_1",
 logstash_1  |               "id" => "15716aaf6095efdde8ab3e566a911aac284e63d3c949dd19ddfd64258d20de9b",
 logstash_1  |           "labels" => nil
 logstash_1  |     },
@@ -291,17 +291,17 @@ Run the demo with `docker-compose -f docker-compose-step3.yml up`
 
 ```bash
 $ docker-compose -f docker-compose-step3.yml up   
-Starting monitoringdemo_example_1 ...
-Starting monitoringdemo_example_1
-Creating monitoringdemo_elasticsearch_1 ...
-Creating monitoringdemo_elasticsearch_1 ... done
-Recreating monitoringdemo_logstash_1 ...
-Recreating monitoringdemo_logstash_1
-Creating monitoringdemo_kibana_1 ...
-Recreating monitoringdemo_logstash_1 ... done
-Recreating monitoringdemo_logspout_1 ...
-Recreating monitoringdemo_logspout_1 ... done
-Attaching to monitoringdemo_example_1, monitoringdemo_elasticsearch_1, monitoringdemo_logstash_1, monitoringdemo_kibana_1, monitoringdemo_logspout_1
+Starting monitoring-demo_example_1 ...
+Starting monitoring-demo_example_1
+Creating monitoring-demo_elasticsearch_1 ...
+Creating monitoring-demo_elasticsearch_1 ... done
+Recreating monitoring-demo_logstash_1 ...
+Recreating monitoring-demo_logstash_1
+Creating monitoring-demo_kibana_1 ...
+Recreating monitoring-demo_logstash_1 ... done
+Recreating monitoring-demo_logspout_1 ...
+Recreating monitoring-demo_logspout_1 ... done
+Attaching to monitoring-demo_example_1, monitoring-demo_elasticsearch_1, monitoring-demo_logstash_1, monitoring-demo_kibana_1, monitoring-demo_logspout_1
 ...
 ... snip snip ...
 ...
@@ -628,17 +628,17 @@ Run the demo `docker-compose -f docker-compose-step7.yml up`
 Let's see if we got our metrics data readily available in kafka ...
 
 ```bash
-docker exec -ti monitoringdemo_kafka_1 kafka-console-consumer.sh  --zookeeper zookeeper --topic telegraf --max-messages 5                              
+docker exec -ti monitoring-demo_kafka_1 kafka-console-consumer.sh  --zookeeper zookeeper --topic telegraf --max-messages 5                              
 Using the ConsoleConsumer with old consumer is deprecated and will be removed in a future major release. Consider using the new consumer by passing [bootstrap-server] instead of [zookeeper].
-docker_container_mem,build-date=20170801,com.docker.compose.service=kibana,license=GPLv2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,host=c280c5e69493,container_image=docker.elastic.co/kibana/kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,com.docker.compose.version=1.16.1,com.docker.compose.oneoff=False,com.docker.compose.project=monitoringdemo,vendor=CentOS,com.docker.compose.container-number=1,name=CentOS\ Base\ Image,engine_host=moby,container_name=monitoringdemo_kibana_1,container_version=5.5.2 pgpgin=98309i,rss_huge=0i,total_pgmajfault=3i,total_pgpgin=98309i,total_rss_huge=0i,usage_percent=1.9058546412278363,active_anon=155103232i,hierarchical_memory_limit=9223372036854771712i,max_usage=272527360i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755",writeback=0i,pgfault=116807i,pgpgout=59702i,total_mapped_file=0i,total_unevictable=0i,total_writeback=0i,unevictable=0i,active_file=0i,mapped_file=0i,total_inactive_anon=20480i,total_pgfault=116807i,total_rss=154718208i,usage=162758656i,total_active_anon=155103232i,cache=3416064i,rss=154718208i,total_cache=3416064i,total_inactive_file=3010560i,total_pgpgout=59702i,limit=8360689664i,pgmajfault=3i,total_active_file=0i,inactive_anon=20480i,inactive_file=3010560i 1508887282000000000
+docker_container_mem,build-date=20170801,com.docker.compose.service=kibana,license=GPLv2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,host=c280c5e69493,container_image=docker.elastic.co/kibana/kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,com.docker.compose.version=1.16.1,com.docker.compose.oneoff=False,com.docker.compose.project=monitoring-demo,vendor=CentOS,com.docker.compose.container-number=1,name=CentOS\ Base\ Image,engine_host=moby,container_name=monitoring-demo_kibana_1,container_version=5.5.2 pgpgin=98309i,rss_huge=0i,total_pgmajfault=3i,total_pgpgin=98309i,total_rss_huge=0i,usage_percent=1.9058546412278363,active_anon=155103232i,hierarchical_memory_limit=9223372036854771712i,max_usage=272527360i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755",writeback=0i,pgfault=116807i,pgpgout=59702i,total_mapped_file=0i,total_unevictable=0i,total_writeback=0i,unevictable=0i,active_file=0i,mapped_file=0i,total_inactive_anon=20480i,total_pgfault=116807i,total_rss=154718208i,usage=162758656i,total_active_anon=155103232i,cache=3416064i,rss=154718208i,total_cache=3416064i,total_inactive_file=3010560i,total_pgpgout=59702i,limit=8360689664i,pgmajfault=3i,total_active_file=0i,inactive_anon=20480i,inactive_file=3010560i 1508887282000000000
 
-docker_container_cpu,vendor=CentOS,com.docker.compose.container-number=1,build-date=20170801,container_image=docker.elastic.co/kibana/kibana,com.docker.compose.project=monitoringdemo,container_name=monitoringdemo_kibana_1,cpu=cpu-total,host=c280c5e69493,license=GPLv2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,com.docker.compose.oneoff=False,engine_host=moby,container_version=5.5.2,com.docker.compose.service=kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,com.docker.compose.version=1.16.1,name=CentOS\ Base\ Image usage_total=11394168870i,usage_system=27880670000000i,throttling_periods=0i,throttling_throttled_periods=0i,throttling_throttled_time=0i,usage_in_usermode=10420000000i,usage_in_kernelmode=970000000i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755",usage_percent=7.948400539083559 1508887282000000000
+docker_container_cpu,vendor=CentOS,com.docker.compose.container-number=1,build-date=20170801,container_image=docker.elastic.co/kibana/kibana,com.docker.compose.project=monitoring-demo,container_name=monitoring-demo_kibana_1,cpu=cpu-total,host=c280c5e69493,license=GPLv2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,com.docker.compose.oneoff=False,engine_host=moby,container_version=5.5.2,com.docker.compose.service=kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,com.docker.compose.version=1.16.1,name=CentOS\ Base\ Image usage_total=11394168870i,usage_system=27880670000000i,throttling_periods=0i,throttling_throttled_periods=0i,throttling_throttled_time=0i,usage_in_usermode=10420000000i,usage_in_kernelmode=970000000i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755",usage_percent=7.948400539083559 1508887282000000000
 
-docker_container_cpu,com.docker.compose.project=monitoringdemo,vendor=CentOS,com.docker.compose.container-number=1,com.docker.compose.oneoff=False,container_image=docker.elastic.co/kibana/kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,engine_host=moby,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,build-date=20170801,license=GPLv2,com.docker.compose.version=1.16.1,container_name=monitoringdemo_kibana_1,host=c280c5e69493,name=CentOS\ Base\ Image,cpu=cpu0,container_version=5.5.2,com.docker.compose.service=kibana container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755",usage_total=3980860071i 1508887282000000000
+docker_container_cpu,com.docker.compose.project=monitoring-demo,vendor=CentOS,com.docker.compose.container-number=1,com.docker.compose.oneoff=False,container_image=docker.elastic.co/kibana/kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,engine_host=moby,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,build-date=20170801,license=GPLv2,com.docker.compose.version=1.16.1,container_name=monitoring-demo_kibana_1,host=c280c5e69493,name=CentOS\ Base\ Image,cpu=cpu0,container_version=5.5.2,com.docker.compose.service=kibana container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755",usage_total=3980860071i 1508887282000000000
 
-docker_container_cpu,com.docker.compose.container-number=1,host=c280c5e69493,name=CentOS\ Base\ Image,com.docker.compose.oneoff=False,container_version=5.5.2,build-date=20170801,com.docker.compose.service=kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,vendor=CentOS,com.docker.compose.project=monitoringdemo,engine_host=moby,license=GPLv2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,com.docker.compose.version=1.16.1,container_name=monitoringdemo_kibana_1,container_image=docker.elastic.co/kibana/kibana,cpu=cpu1 usage_total=3942753596i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755" 1508887282000000000
+docker_container_cpu,com.docker.compose.container-number=1,host=c280c5e69493,name=CentOS\ Base\ Image,com.docker.compose.oneoff=False,container_version=5.5.2,build-date=20170801,com.docker.compose.service=kibana,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,vendor=CentOS,com.docker.compose.project=monitoring-demo,engine_host=moby,license=GPLv2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,com.docker.compose.version=1.16.1,container_name=monitoring-demo_kibana_1,container_image=docker.elastic.co/kibana/kibana,cpu=cpu1 usage_total=3942753596i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755" 1508887282000000000
 
-docker_container_cpu,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,cpu=cpu2,host=c280c5e69493,build-date=20170801,container_version=5.5.2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,com.docker.compose.version=1.16.1,com.docker.compose.container-number=1,name=CentOS\ Base\ Image,com.docker.compose.oneoff=False,container_name=monitoringdemo_kibana_1,com.docker.compose.service=kibana,container_image=docker.elastic.co/kibana/kibana,vendor=CentOS,com.docker.compose.project=monitoringdemo,engine_host=moby,license=GPLv2 usage_total=1607029783i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755" 1508887282000000000
+docker_container_cpu,maintainer=Elastic\ Docker\ Team\ <docker@elastic.co>,cpu=cpu2,host=c280c5e69493,build-date=20170801,container_version=5.5.2,com.docker.compose.config-hash=1e1f2bf92f25fcc3a4b235d04f600cd276809e7195a0c5196f0a8098e82e47b3,com.docker.compose.version=1.16.1,com.docker.compose.container-number=1,name=CentOS\ Base\ Image,com.docker.compose.oneoff=False,container_name=monitoring-demo_kibana_1,com.docker.compose.service=kibana,container_image=docker.elastic.co/kibana/kibana,vendor=CentOS,com.docker.compose.project=monitoring-demo,engine_host=moby,license=GPLv2 usage_total=1607029783i,container_id="aa2195088fd305079d2942b009c9e9fd1bb38781aa558be6a9f084a334b1b755" 1508887282000000000
 
 Processed a total of 5 messages
 ```
@@ -736,7 +736,7 @@ You'll see the new kafka image created
 
 ```bash
 $ docker images |  grep demo                                                                                     
-monitoringdemo_kafka                            latest              5a746c9ff5ea        2 minutes ago       270MB
+monitoring-demo_kafka                            latest              5a746c9ff5ea        2 minutes ago       270MB
 ```
 
 The JMX story
@@ -753,7 +753,7 @@ graph LR;
 Do we have jolokia metrics ? 
 
 ```bash
-$ docker exec -ti monitoringdemo_kafka_1 kafka-console-consumer.sh  --zookeeper zookeeper --topic telegraf | grep jolokia 
+$ docker exec -ti monitoring-demo_kafka_1 kafka-console-consumer.sh  --zookeeper zookeeper --topic telegraf | grep jolokia 
 jolokia,host=cde5575b52a5,jolokia_name=kafka,jolokia_port=8778,jolokia_host=kafka heap_memory_usage_used=188793344,messages_in_MeanRate=12.98473084303969,bytes_out_FiveMinuteRate=1196.4939381458667,bytes_out_RateUnit="SECONDS",active_controller_Value=1,heap_memory_usage_init=1073741824,heap_memory_usage_committed=1073741824,messages_in_FiveMinuteRate=4.794914163942757,messages_in_EventType="messages",isr_expands_Count=0,isr_expands_FiveMinuteRate=0,isr_expands_OneMinuteRate=0,messages_in_RateUnit="SECONDS",bytes_in_FifteenMinuteRate=995.4606306690374,bytes_out_OneMinuteRate=3453.5697437249646,bytes_out_Count=413240,offline_partitions_Value=0,isr_shrinks_OneMinuteRate=0,messages_in_FifteenMinuteRate=1.8164700620801133,messages_in_OneMinuteRate=11.923477587504813,bytes_in_Count=955598,bytes_in_MeanRate=7110.765507856953,isr_shrinks_Count=0,isr_expands_RateUnit="SECONDS",isr_shrinks_EventType="shrinks",isr_expands_MeanRate=0,bytes_in_RateUnit="SECONDS",bytes_in_OneMinuteRate=6587.34465794122,bytes_in_FiveMinuteRate=2631.3776025779002,bytes_out_EventType="bytes",isr_shrinks_FiveMinuteRate=0,isr_expands_EventType="expands",messages_in_Count=1745,bytes_out_MeanRate=3074.982298604404,isr_expands_FifteenMinuteRate=0,heap_memory_usage_max=1073741824,bytes_in_EventType="bytes",bytes_out_FifteenMinuteRate=438.0280170256858,isr_shrinks_MeanRate=0,isr_shrinks_RateUnit="SECONDS",isr_shrinks_FifteenMinuteRate=0 1508889300000000000
 jolokia,jolokia_name=kafka,jolokia_port=8778,jolokia_host=kafka,host=cde5575b52a5 bytes_in_MeanRate=6630.745414108696,isr_shrinks_RateUnit="SECONDS",isr_expands_EventType="expands",isr_expands_FiveMinuteRate=0,isr_expands_RateUnit="SECONDS",heap_memory_usage_max=1073741824,messages_in_Count=1745,isr_expands_FifteenMinuteRate=0,bytes_out_RateUnit="SECONDS",isr_shrinks_OneMinuteRate=0,isr_shrinks_FifteenMinuteRate=0,isr_shrinks_MeanRate=0,messages_in_RateUnit="SECONDS",bytes_in_OneMinuteRate=5576.066868503058,messages_in_FifteenMinuteRate=1.796398775034883,bytes_in_FiveMinuteRate=2545.1107836610863,bytes_out_Count=413240,active_controller_Value=1,isr_expands_Count=0,heap_memory_usage_committed=1073741824,messages_in_EventType="messages",bytes_in_Count=955598,isr_expands_OneMinuteRate=0,messages_in_FiveMinuteRate=4.637718179794651,messages_in_MeanRate=12.107909165680097,isr_shrinks_Count=0,isr_shrinks_EventType="shrinks",bytes_in_FifteenMinuteRate=984.461178226918,offline_partitions_Value=0,bytes_out_OneMinuteRate=2923.3836736983444,bytes_out_EventType="bytes",isr_shrinks_FiveMinuteRate=0,isr_expands_MeanRate=0,bytes_in_EventType="bytes",bytes_out_MeanRate=2867.3907911149618,messages_in_OneMinuteRate=10.093005874965653,bytes_in_RateUnit="SECONDS",bytes_out_FifteenMinuteRate=433.18797795919676,bytes_out_FiveMinuteRate=1157.2682011038034,heap_memory_usage_init=1073741824,heap_memory_usage_used=189841920 1508889310000000000
 ```
