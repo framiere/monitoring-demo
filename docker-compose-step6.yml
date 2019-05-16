@@ -34,7 +34,7 @@ services:
     depends_on:
       - elasticsearch
   logspout:
-    image: bekt/logƒspout-logstash
+    image: bekt/logspout-logstash
     restart: on-failure
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock

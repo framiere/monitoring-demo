@@ -1,4 +1,4 @@
-FROM paasmule/curl-ssl-jq
+FROM fuww/alpine-curl-ssl-jq
 
 ENV SERVICE_GRAFANA_HOST grafana
 ENV SERVICE_GRAFANA_PORT 3000
